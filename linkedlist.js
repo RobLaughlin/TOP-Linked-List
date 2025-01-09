@@ -23,6 +23,7 @@ export class LinkedList {
         let llStr = "";
         while (curNode !== null) {
             llStr += `(${curNode.value.toString()}) -> `;
+            curNode = curNode.nextNode();
         }
 
         llStr += "null";
