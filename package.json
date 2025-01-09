@@ -1,0 +1,20 @@
+{
+    "name": "top-linked-list",
+    "version": "1.0.0",
+    "description": "A linked list data structure implementation for The Odin Project.",
+    "main": "app.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/RobLaughlin/TOP-Linked-List.git"
+    },
+    "author": "Rob L",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/RobLaughlin/TOP-Linked-List/issues"
+    },
+    "homepage": "https://github.com/RobLaughlin/TOP-Linked-List#readme"
+}
