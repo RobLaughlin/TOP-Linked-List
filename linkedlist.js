@@ -6,21 +6,57 @@ export class Node {
 }
 
 export class LinkedList {
+    static INDEX_ERROR = (index, size) => {
+        return new RangeError(
+            `Index (${index}) must be strictly less than the size of the linked list (${size}) and bigger than or equal to 0.`
+        );
+    };
+
     #head = null;
     #tail = null;
     #size = 0;
 
     constructor() {}
 
+    #initialize(value) {
+        this.#head = new Node(value, null);
+        this.#tail = this.#head;
+    }
+
+    #inRange(index) {
+        return index < this.size() && index >= 0;
+    }
+
+    #traverse(callback) {
+        // Traverse the linked list starting at the head.
+        let currentNode = this.#head;
+        let i = 0;
+        while (currentNode !== null) {
+            // Exits the search early if the callback returns true.
+            if (callback(currentNode, i)) {
+                return {
+                    node: currentNode,
+                    index: i,
+                };
+            }
+            currentNode = currentNode.nextNode;
+            i++;
+        }
+
+        // If none of our callbacks returned true
+        return {
+            node: null,
+            index: null,
+        };
+    }
+
     size() {
         return this.#size;
     }
 
     append(value) {
-        // console.log(value);
         if (this.#size === 0) {
-            this.#head = new Node(value, null);
-            this.#tail = this.#head;
+            this.#initialize(value);
         } else {
             this.#tail.nextNode = new Node(value);
             this.#tail = this.#tail.nextNode;
@@ -30,11 +66,9 @@ export class LinkedList {
 
     prepend(value) {
         if (this.size() === 0) {
-            this.#head = new Node(value, null);
-            this.#tail = this.#head;
+            this.#initialize(value);
         } else {
-            const oldHead = new Node(this.#head.value, this.#head.nextNode);
-            this.#head = new Node(value, oldHead);
+            this.#head = new Node(value, this.#head);
         }
         this.#size++;
     }
@@ -48,57 +82,36 @@ export class LinkedList {
     }
 
     at(index) {
-        if (index >= this.#size) {
-            throw new RangeError(
-                `Index (${index}) must be strictly less than the size of the linked list (${
-                    this.#size
-                })`
-            );
+        if (!this.#inRange(index)) {
+            throw LinkedList.INDEX_ERROR(index, this.size());
         }
 
-        let i = 0;
-        let curNode = this.#head;
-        while (i < index) {
-            curNode = curNode.nextNode;
-            i++;
-        }
+        return this.#traverse((_, i) => {
+            if (i === index) {
+                return true;
+            }
 
-        return curNode;
+            return false;
+        }).node;
     }
 
     contains(value) {
-        let curNode = this.#head;
-        while (curNode !== null) {
-            if (curNode.value === value) {
-                return true;
-            }
-            curNode = curNode.nextNode;
-        }
+        const idx = this.#traverse((node, _) => {
+            return node.value === value;
+        }).index;
 
-        return false;
+        return idx !== null;
     }
 
     find(value) {
-        let curNode = this.#head;
-        let i = 0;
-        while (curNode !== null) {
-            if (curNode.value === value) {
-                return i;
-            }
-            curNode = curNode.nextNode;
-            i++;
-        }
-
-        return null;
+        return this.#traverse((node, _) => {
+            return node.value === value;
+        }).index;
     }
 
     insertAt(value, index) {
-        if (index >= this.#size || index < 0) {
-            throw new RangeError(
-                `Index (${index}) must be strictly less than the size of the linked list (${
-                    this.#size
-                }) and strictly greater than 0.`
-            );
+        if (!this.#inRange(index)) {
+            throw LinkedList.INDEX_ERROR(index, this.size());
         }
 
         const newNode = new Node(value);
@@ -114,16 +127,41 @@ export class LinkedList {
             prevNode.nextNode = newNode;
             newNode.nextNode = newNextNode;
         }
+        this.#size++;
+    }
+
+    removeAt(index) {
+        if (!this.#inRange(index)) {
+            throw LinkedList.INDEX_ERROR(index, this.size());
+        }
+
+        if (index === 0) {
+            this.#head = this.#head.nextNode;
+        } else if (index === this.#size - 1) {
+            if (this.#inRange(index - 2)) {
+                const newTail = this.at(index - 2);
+                this.#tail = newTail.nextNode;
+                this.#tail.nextNode = null;
+            }
+        } else {
+            if (this.#inRange(index - 1)) {
+                const prevNode = this.at(index - 1);
+
+                // Break the chain
+                const nodeToRemove = prevNode.nextNode;
+                prevNode.nextNode = nodeToRemove.nextNode;
+                nodeToRemove.nextNode = null;
+            }
+        }
+        this.#size--;
     }
 
     toString() {
-        let curNode = this.#head;
         let llStr = "";
-        while (curNode !== null) {
-            llStr += `(${curNode.value}) -> `;
-            curNode = curNode.nextNode;
-        }
-
+        this.#traverse((node, _) => {
+            llStr += `(${node.value}) -> `;
+            return false;
+        });
         llStr += "null";
 
         return llStr;

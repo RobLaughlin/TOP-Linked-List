@@ -36,6 +36,18 @@ function testLinkedList(ll, numTests) {
     console.log(`Inserting ${"C"} at index ${2 * numTests - 1}...`);
     ll.insertAt("C", 2 * numTests - 1);
     printLinkedListStatus(ll);
+
+    console.log(`Removing ${"C"} at index ${2 * numTests - 1}...`);
+    ll.removeAt(2 * numTests - 1);
+    printLinkedListStatus(ll);
+
+    console.log(`Removing ${"B"} at index ${numTests}...`);
+    ll.removeAt(numTests);
+    printLinkedListStatus(ll);
+
+    console.log(`Removing ${"A"} at index 0...`);
+    ll.removeAt(0);
+    printLinkedListStatus(ll);
 }
 
 function init() {
